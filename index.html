@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<link rel="manifest" href="manifest.json">
+<title>Cenkar WhatsApp OCR Test</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#18202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:#111827;color:#fff;padding:18px 14px}h1{font-size:20px;margin:0}
+main{max-width:720px;margin:auto;padding:12px}.card{background:#fff;border-radius:15px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px #0001}
+button{width:100%;border:0;border-radius:11px;padding:12px;margin-top:8px;background:#111827;color:#fff;font-weight:800;font-size:15px}
+button.secondary{background:#fff;color:#111827;border:1px solid #d7dce4}
+button.danger{background:#fee2e2;color:#991b1b}
+.small{font-size:12px;color:#687385;line-height:1.5}.status{padding:10px;border-radius:10px;background:#eef2ff;margin-top:8px}
+img{max-width:100%;border-radius:10px;margin-top:10px}
+.candidate{border:2px solid #e5e7eb;border-radius:12px;padding:11px;margin-top:9px}.candidate.best{border-color:#111827}
+.candidate b{display:block;font-size:16px;margin-bottom:5px}.score{font-weight:800}
+pre{white-space:pre-wrap;word-break:break-word;background:#f8fafc;padding:10px;border-radius:9px;font-size:12px}
+label{display:block;font-size:12px;font-weight:800;margin:10px 0 5px}
+input,textarea{width:100%;font-size:16px;padding:10px;border:1px solid #d8dde5;border-radius:10px}
+hr{border:0;border-top:1px solid #e5e7eb;margin:14px 0}
+.hidden{display:none!important}
+.ok{background:#dcfce7;color:#166534}.warn{background:#fef3c7;color:#92400e}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+<header><h1>🚚 Cenkar — WhatsApp Teslim Formu OCR Test</h1></header>
+<main>
+<div class="card">
+<b>1. WhatsApp'tan Fotoğraf Gönder</b>
+<p class="small">WhatsApp'ta teslim formu fotoğrafını <b>Paylaş → Cenkar WhatsApp OCR Test</b> ile gönderin.</p>
+<div id="status" class="status">Fotoğraf bekleniyor…</div>
+<img id="preview" class="hidden">
+</div>
+
+<div class="card">
+<b>2. Sipariş Havuzu</b>
+<p class="small">Bu test uygulamasında örnek siparişler bulunur. Gerçek Cenkar siparişleriyle eşleştirme entegrasyondan sonra ana uygulamaya taşınacaktır.</p>
+<div id="orders"></div>
+<label>Yeni test siparişi ekle</label>
+<input id="demoCustomer" placeholder="Müşteri adı">
+<input id="demoPhone" placeholder="Telefon" style="margin-top:7px">
+<input id="demoPlate" placeholder="Çekici plakası" style="margin-top:7px">
+<input id="demoCity" placeholder="İl / İlçe" style="margin-top:7px">
+<button id="addOrder" class="secondary">＋ Test Siparişi Ekle</button>
+</div>
+
+<div class="card">
+<b>3. OCR</b>
+<div id="ocrStatus" class="status">OCR henüz çalışmadı.</div>
+<button id="ocrBtn">🔎 Fotoğrafı Oku ve Eşleştir</button>
+<pre id="ocrText" class="hidden"></pre>
+</div>
+
+<div class="card">
+<b>4. Eşleşme Sonucu</b>
+<div id="matches"><p class="small">OCR'dan sonra en uygun siparişler burada gösterilir.</p></div>
+</div>
+
+<div class="card">
+<b>5. Teslim Formu Kaydı</b>
+<p class="small">İlk testte kayıt işlemi bu uygulamanın kendi IndexedDB'sine yapılır. Ana Cenkar verisine dokunmaz.</p>
+<button id="saveBtn" class="hidden">📎 Seçilen Siparişe Teslim Formunu Kaydet</button>
+<button id="viewBtn" class="secondary hidden">📄 Kaydedilen Formu Gör</button>
+</div>
+</main>
+
+<script>
+const DB='cenkar_ocr_test_db';
+let currentFile=null,currentMatches=[],selectedOrderId=null;
+let orders=JSON.parse(localStorage.getItem('cenkar_ocr_test_orders')||'null')||[
+ {id:1,customer:'DEMO MÜŞTERİ 1',phone:'05321234567',plate:'21 ABC 123',city:'DİYARBAKIR',district:'KAYAPINAR'},
+ {id:2,customer:'DEMO MÜŞTERİ 2',phone:'05429876543',plate:'34 XYZ 456',city:'İSTANBUL',district:'BAĞCILAR'},
+ {id:3,customer:'DEMO MÜŞTERİ 3',phone:'05551112233',plate:'06 CEN 789',city:'ANKARA',district:'SİNCAN'}
+];
+
+const $=id=>document.getElementById(id);
+function esc(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+function norm(s){return String(s||'').toUpperCase().replace(/İ/g,'I').replace(/Ğ/g,'G').replace(/Ü/g,'U').replace(/Ş/g,'S').replace(/Ö/g,'O').replace(/Ç/g,'C').replace(/[^A-Z0-9]/g,'')}
+function digits(s){return String(s||'').replace(/\D/g,'')}
+function renderOrders(){
+ $('orders').innerHTML=orders.map(o=>`<div class="candidate"><b>${esc(o.customer)}</b><div class="small">Tel: ${esc(o.phone)} · Plaka: ${esc(o.plate)} · ${esc(o.city)}/${esc(o.district)}</div></div>`).join('');
+}
+function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore('files',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function getSharedFile(){
+ const db=await openDB(); const r=db.transaction('files').objectStore('files').get('latest');
+ r.onsuccess=()=>{if(r.result){currentFile=r.result.blob;$('preview').src=URL.createObjectURL(currentFile);$('preview').classList.remove('hidden');$('status').textContent='✅ Fotoğraf uygulamaya geldi: '+(r.result.name||'teslim-formu.jpg');$('status').className='status ok';} }
+}
+function similarity(a,b){
+ a=norm(a);b=norm(b);if(!a||!b)return 0;if(a===b)return 1;
+ let hits=0;for(const ch of new Set(a)){if(b.includes(ch))hits++}return hits/Math.max(new Set(a).size,new Set(b).size);
+}
+function extractFields(text){
+ const t=text.toUpperCase();
+ const out={};
+ let m=t.match(/0?5[\d\s().-]{9,}/);if(m)out.phone=digits(m[0]).slice(-11);
+ m=t.match(/\b(\d{2}\s*[A-ZÇĞİÖŞÜ]{1,3}\s*\d{2,4})\b/);if(m)out.plate=m[1];
+ const cities=['DİYARBAKIR','İSTANBUL','ANKARA','İZMİR','BURSA','KOCAELİ','KONYA','ANTALYA','ADANA','MERSİN','GAZİANTEP','ŞANLIURFA','MALATYA'];
+ for(const c of cities)if(t.includes(c)){out.city=c;break}
+ return out;
+}
+function scoreOrder(o,f,text){
+ let score=0,why=[];
+ if(f.phone && digits(o.phone).slice(-10)===digits(f.phone).slice(-10)){score+=60;why.push('telefon')}
+ if(f.plate && norm(o.plate)===norm(f.plate)){score+=30;why.push('plaka')}
+ if(f.city && norm(text).includes(norm(o.city))){score+=7;why.push('il')}
+ if(f.city && norm(text).includes(norm(o.district))){score+=3;why.push('ilçe')}
+ if(norm(text).includes(norm(o.customer))){score+=15;why.push('müşteri')}
+ return {score:Math.min(score,100),why};
+}
+async function runOCR(){
+ if(!currentFile)return alert('Önce WhatsApp’tan bir teslim formu fotoğrafı gönderin.');
+ $('ocrStatus').textContent='⏳ OCR çalışıyor… Fotoğraf okunuyor.';
+ $('ocrStatus').className='status warn';$('ocrBtn').disabled=true;
+ try{
+  const result=await Tesseract.recognize(currentFile,'tur+eng',{logger:m=>{if(m.status)$('ocrStatus').textContent='⏳ '+m.status+' '+(m.progress?Math.round(m.progress*100)+'%':'')}});
+  const text=result.data.text||'';
+  $('ocrText').textContent=text;$('ocrText').classList.remove('hidden');
+  const f=extractFields(text);
+  currentMatches=orders.map(o=>({o,...scoreOrder(o,f,text)})).sort((a,b)=>b.score-a.score);
+  renderMatches(f);
+  $('ocrStatus').textContent='✅ OCR tamamlandı.';$('ocrStatus').className='status ok';
+ }catch(e){$('ocrStatus').textContent='❌ OCR hatası: '+e;$('ocrStatus').className='status warn'}
+ finally{$('ocrBtn').disabled=false}
+}
+function renderMatches(f){
+ if(!currentMatches.length){$('matches').innerHTML='<p>Uygun sipariş bulunamadı.</p>';return}
+ $('matches').innerHTML=currentMatches.map((m,i)=>`<div class="candidate ${i===0?'best':''}">
+ <b>${esc(m.o.customer)} — <span class="score">%${m.score}</span></b>
+ <div class="small">${esc(m.o.phone)} · ${esc(m.o.plate)} · ${esc(m.o.city)}/${esc(m.o.district)}</div>
+ <div class="small">Eşleşen: ${m.why.join(', ')||'zayıf eşleşme'}</div>
+ <button onclick="selectOrder(${m.o.id})">${i===0?'⭐ En uygun bunu seç':'Bu siparişi seç'}</button>
+ </div>`).join('');
+}
+window.selectOrder=function(id){selectedOrderId=id;$('saveBtn').classList.remove('hidden');$('matches').querySelectorAll('.candidate').forEach(x=>x.classList.remove('best'));event?.currentTarget?.closest('.candidate')?.classList.add('best')}
+$('addOrder').onclick=()=>{const customer=$('demoCustomer').value.trim().toUpperCase();if(!customer)return alert('Müşteri adı girin.');orders.push({id:Date.now(),customer,phone:$('demoPhone').value.trim(),plate:$('demoPlate').value.trim().toUpperCase(),city:$('demoCity').value.trim().toUpperCase(),district:''});localStorage.setItem('cenkar_ocr_test_orders',JSON.stringify(orders));renderOrders();$('demoCustomer').value='';$('demoPhone').value='';$('demoPlate').value='';$('demoCity').value=''}
+$('ocrBtn').onclick=runOCR;
+$('saveBtn').onclick=async()=>{if(!selectedOrderId||!currentFile)return alert('Önce bir sipariş seçin.');const db=await openDB();const tx=db.transaction('files','readwrite');tx.objectStore('files').put({id:'order-'+selectedOrderId,name:'teslim-formu.jpg',blob:currentFile,savedAt:Date.now()});tx.oncomplete=()=>{$('saveBtn').textContent='✅ Teslim Formu Kaydedildi';$('viewBtn').classList.remove('hidden');}};
+$('viewBtn').onclick=async()=>{const db=await openDB();const r=db.transaction('files').objectStore('files').get('order-'+selectedOrderId);r.onsuccess=()=>{if(r.result)window.open(URL.createObjectURL(r.result.blob),'_blank')}};
+renderOrders();getSharedFile();
+</script>
+</body>
+</html>
