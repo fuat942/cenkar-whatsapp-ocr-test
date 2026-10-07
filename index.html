@@ -3,188 +3,807 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cenkar Sevkiyat</title>
 <meta name="theme-color" content="#111827">
 <link rel="manifest" href="manifest.json">
-<title>Cenkar WhatsApp OCR Test</title>
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#18202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-header{background:#111827;color:#fff;padding:18px 14px}h1{font-size:20px;margin:0}
-main{max-width:720px;margin:auto;padding:12px}.card{background:#fff;border-radius:15px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px #0001}
-button{width:100%;border:0;border-radius:11px;padding:12px;margin-top:8px;background:#111827;color:#fff;font-weight:800;font-size:15px}
-button.secondary{background:#fff;color:#111827;border:1px solid #d7dce4}
-button.danger{background:#fee2e2;color:#991b1b}
-.small{font-size:12px;color:#687385;line-height:1.5}.status{padding:10px;border-radius:10px;background:#eef2ff;margin-top:8px}
-img{max-width:100%;border-radius:10px;margin-top:10px}
-.candidate{border:2px solid #e5e7eb;border-radius:12px;padding:11px;margin-top:9px}.candidate.best{border-color:#111827}
-.candidate b{display:block;font-size:16px;margin-bottom:5px}.score{font-weight:800}
-pre{white-space:pre-wrap;word-break:break-word;background:#f8fafc;padding:10px;border-radius:9px;font-size:12px}
-label{display:block;font-size:12px;font-weight:800;margin:10px 0 5px}
-input,textarea{width:100%;font-size:16px;padding:10px;border:1px solid #d8dde5;border-radius:10px}
-hr{border:0;border-top:1px solid #e5e7eb;margin:14px 0}
+input[type="text"],input[type="search"],textarea{ text-transform:uppercase; }
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6f8;color:#18202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:#111827;color:#fff;padding:17px 14px 12px;position:sticky;top:0;z-index:10}
+h1{font-size:21px;margin:0 0 11px}
+.tabs{display:flex;gap:7px;overflow-x:auto}
+.tab{border:0;border-radius:10px;padding:9px 12px;background:#263244;color:#fff;font-weight:700;white-space:nowrap}
+.tab.active{background:#fff;color:#111827}
+main{max-width:720px;margin:auto;padding:12px}
+.card,.order{background:#fff;border-radius:15px;padding:14px;margin-bottom:11px;box-shadow:0 2px 10px #0000000b}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px}
+.grid>div{min-width:0}.full{grid-column:1/-1}
+label{display:block;font-size:12px;font-weight:800;margin:7px 0 5px}
+input,select,textarea{width:100%;min-width:0;max-width:100%;font-size:16px;padding:11px 10px;border:1px solid #d8dde5;border-radius:10px;background:#fff}
+textarea{min-height:72px;resize:vertical}
+button{font-family:inherit}
+.primary{width:100%;border:0;border-radius:11px;padding:13px;margin-top:12px;background:#111827;color:#fff;font-size:16px;font-weight:800}
+.secondary{width:100%;border:1px solid #d7dce4;border-radius:10px;padding:10px;background:#fff;font-weight:700}
+.small{font-size:12px;color:#687385;line-height:1.4}
 .hidden{display:none!important}
-.ok{background:#dcfce7;color:#166534}.warn{background:#fef3c7;color:#92400e}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:11px}
+.stat{background:#fff;border-radius:12px;padding:10px}.stat b{display:block;font-size:20px}.stat span{font-size:11px;color:#687385}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}.filters input{grid-column:1/-1}.filter-toggle{width:100%;border:1px solid #d7dce4;border-radius:10px;padding:10px;background:#fff;font-weight:800;margin-bottom:8px}.filter-panel.hidden{display:none!important}
+.order{border:1px solid #e2e7ed;box-shadow:none}
+.order-top{display:flex;justify-content:space-between;gap:8px}
+.badge{font-size:11px;font-weight:800;padding:5px 8px;border-radius:8px;background:#dcfce7;color:#166534;white-space:nowrap}
+.meta{font-size:13px;color:#596579;line-height:1.65;margin-top:7px}
+.actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.actions button{flex:1;min-width:120px;padding:9px;border-radius:9px;border:1px solid #d7dce4;background:#fff;font-weight:700}
+.danger{background:#fee2e2!important;color:#991b1b!important;border-color:#fecaca!important}
+.cloudbar{padding:7px 12px;text-align:right}
+#cloudBtn{border:1px solid #334155;background:#111827;color:#fff;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:700}
+#cloudStatus{font-size:12px;margin-right:6px;color:#64748b}
+.modal{position:fixed;inset:0;background:#0008;display:none;align-items:flex-end;justify-content:center;z-index:100}
+.modal.show{display:flex}
+.modal-box{background:#fff;width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:19px 19px 0 0;padding:16px}
+.modal-head{display:flex;justify-content:space-between;align-items:center}.modal-head h2{margin:0;font-size:19px}
+.close{border:0;background:#eef2f6;border-radius:9px;padding:7px 11px;font-size:20px}
+.modal-actions{display:flex;gap:8px;margin-top:12px}.modal-actions button{flex:1;padding:12px;border:0;border-radius:10px;font-weight:800}
+.cancel{background:#e5e7eb}.save{background:#111827;color:#fff}
+#cloudModal{align-items:center;padding:18px}.cloud-box{max-width:420px;border-radius:18px}
+.cloud-box input{margin:5px 0}.cloud-box button{width:100%;margin-top:7px;padding:11px;border:0;border-radius:10px;font-weight:800}
+@media(max-width:440px){.grid{gap:8px}.grid input,.grid select{font-size:15.5px}.summary{grid-template-columns:1fr 1fr}.summary .stat:last-child{grid-column:1/-1}}
+@media(max-width:350px){.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+input[type=text],textarea{text-transform:uppercase}
+
+.share-card{border:2px solid #dbeafe;background:#eff6ff}
+.share-status{font-size:13px;line-height:1.55;margin-top:8px}
+.share-preview{width:100%;max-height:420px;object-fit:contain;background:#111827;border-radius:12px;margin-top:10px}
+.ocr-text{white-space:pre-wrap;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px;font-size:12px;line-height:1.45;max-height:190px;overflow:auto}
+.match-card{border:1px solid #dbe4ee;border-radius:11px;padding:11px;margin-top:8px;background:#fff}
+.match-score{font-weight:900;font-size:18px}
+.match-meta{font-size:12px;color:#64748b;line-height:1.5;margin-top:4px}
+.match-actions{display:flex;gap:7px;margin-top:8px}
+.match-actions button{flex:1;padding:9px;border:1px solid #d7dce4;border-radius:9px;background:#fff;font-weight:800}
+.match-actions .accept{background:#111827;color:#fff}
+.progress{height:8px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:8px}
+.progress>i{display:block;height:100%;width:0;background:#2563eb;transition:width .2s}
+
 </style>
 <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
-      .then(() => console.log("Cenkar Service Worker aktif"))
-      .catch(err => console.warn("Service Worker hatası:", err));
+// Cenkar WhatsApp paylaşım hedefi: WhatsApp'tan gönderilen fotoğrafı uygulamaya alır.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('./sw.js').catch(function(e){
+      console.warn('Service Worker kaydı başarısız:', e);
+    });
   });
 }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 <body>
-<header><h1>🚚 Cenkar — WhatsApp Teslim Formu OCR Test</h1></header>
+<header>
+<h1>🚚 Cenkar Sevkiyat</h1>
+<div class="tabs">
+<button type="button" class="tab active" data-section="new" onclick="return showSection('new',this)">➕ Yeni Sipariş</button>
+<button type="button" class="tab" data-section="list" onclick="return showSection('list',this)">📋 Siparişler</button>
+<button type="button" class="tab" data-section="completed" onclick="return showSection('completed',this)">✅ Tamamlananlar</button>
+</div>
+</header>
+
+<div class="cloudbar">
+<span id="cloudStatus">☁️ Bulut: Bağlı değil</span>
+<button id="cloudBtn">☁️ Bulut</button>
+</div>
+
 <main>
+<section id="new">
 <div class="card">
-<b>1. WhatsApp'tan Fotoğraf Gönder</b>
-<p class="small">WhatsApp'ta teslim formu fotoğrafını <b>Paylaş → Cenkar WhatsApp OCR Test</b> ile gönderin.</p>
-<div id="status" class="status">Fotoğraf bekleniyor…</div>
-<img id="preview" class="hidden">
-</div>
+<div class="grid">
+<div class="full"><label>Müşteri</label><input id="customer" placeholder="Müşteri adı"></div>
 
-<div class="card">
-<b>2. Sipariş Havuzu</b>
-<p class="small" id="orderSource">Gerçek Cenkar siparişleri bu telefonda varsa otomatik okunur ve eşleştirmede kullanılır. Bu test ana uygulamadaki siparişleri değiştirmez.</p>
+<div><label>Ürün çeşidi</label><select id="product">
+<option>Yerden Isıtma</option><option>Mantolama</option>
+</select></div>
+<div id="densityBox"><label>Yoğunluk (DNS)</label><select id="density"></select></div>
+
+<div><label>İl</label><input id="city" placeholder="İl"></div>
+<div><label>İlçe</label><input id="district" placeholder="İlçe"></div>
+
+<div class="full"><label>İrtibat Telefonu</label><input id="phone" type="tel" inputmode="tel" placeholder="05xx xxx xx xx"></div>
+
+<div id="quantityBox"><label id="quantityLabel">Miktar (Paket)</label><input id="sqm" type="number" inputmode="decimal" placeholder="Paket adedi"></div>
+<div id="quantityTypeBox"><label>Miktar Türü</label><select id="quantityType"><option value="Paket">Paket</option><option value="1 TIR">1 TIR</option></select></div>
+<div id="foilBox"><label>Yerden Isıtma</label><select id="foil"><option>Folyolu</option><option>Folyosuz</option></select></div>
+<div id="packageBox" class="hidden"><label>Paket Sayısı</label><input id="packageCount" type="number" inputmode="numeric" min="0" placeholder="Paket adedi"></div>
+<div id="epsTypeBox" class="hidden"><label>Mantolama Tipi</label><select id="epsType"><option>Beyaz EPS</option><option>Karbonlu</option></select></div>
+<div id="teamSystemBox" class="hidden"><label>Takım Sistem</label><select id="teamSystem"><option>Evet</option><option>Hayır</option></select></div>
+<div id="thicknessBox"><label>Kalınlık (cm)</label><select id="thickness"></select></div>
+
+<div><label>Sevkiyat tarihi</label><input id="date" type="date"></div>
+<div><label>Çekici plakası</label><input id="tractor" placeholder="21 ABC 123"></div>
+<div><label>Dorse plakası</label><input id="trailer" placeholder="21 XYZ 456"></div>
+<div><label>Şoför</label><input id="driver" placeholder="Ad Soyad"></div>
+<div><label>Şoför Tel</label><input id="soforTel" type="tel" inputmode="numeric" maxlength="11" placeholder="05xxxxxxxxx"></div>
+<div><label>Nakliye ücreti (TL)</label><input id="freight" type="text" inputmode="decimal" pattern="[0-9.,]*" autocomplete="off" placeholder="47000"></div>
+<div><label>Ödeme şekli</label><select id="freightPayment"><option>Bize ait</option><option>Karşı ödemeli</option></select></div>
+<div><label>KDV</label><select id="vat"><option>Yok</option><option>Var</option></select></div>
+
+<div class="full"><label>Sipariş Bilgilerini Yapıştır</label>
+<textarea id="orderPaste" placeholder="WhatsApp sipariş mesajını buraya yapıştırın..."></textarea>
+<button class="primary" id="parseOrderBtn">📋 Yapıştır → Siparişi Doldur</button>
+<p class="small">Müşteri, telefon, ürün, il/ilçe, miktar, DNS, folyo ve kalınlık bilgilerini bulmaya çalışır.</p></div>
+
+<div class="full"><label>Sevk Bilgilerini Yapıştır</label>
+<textarea id="shipmentPaste" placeholder="WhatsApp sevk mesajını buraya yapıştırın..."></textarea>
+<button class="primary" id="parseShipmentBtn">📋 Yapıştır → Bilgileri Doldur</button>
+<p class="small">Çekici, dorse, şoför, telefon, varış, nakliye ve KDV bilgilerini almaya çalışır.</p></div>
+
+<div class="full"><label>Not</label><textarea id="note" placeholder="İsteğe bağlı"></textarea></div>
+</div>
+<button class="primary" id="saveBtn">Siparişi Kaydet</button>
+<p class="small">Siparişler telefonda saklanır. Bulut yalnızca siz 'Şimdi Senkronize Et' düğmesine bastığınızda çalışır.</p>
+</div>
+</section>
+
+<section id="list" class="hidden">
+<div class="summary">
+<div class="stat"><b id="count">0</b><span>Aktif Sipariş</span></div>
+<div class="stat"><b id="total">0</b><span>Toplam m²</span></div>
+<div class="stat"><b id="pending">0</b><span>Sevkiyat Bekleyen</span></div>
+</div>
+<div class="card"><div class="filters">
+<input id="search" placeholder="🔎 Müşteri, plaka veya şoför ara">
+<select id="fcity"><option value="">Tüm iller</option></select>
+<select id="fproduct"><option value="">Tüm ürünler</option><option>Yerden Isıtma</option><option>Mantolama</option></select>
+</div></div>
 <div id="orders"></div>
-<label>Yeni test siparişi ekle</label>
-<input id="demoCustomer" placeholder="Müşteri adı">
-<input id="demoPhone" placeholder="Telefon" style="margin-top:7px">
-<input id="demoPlate" placeholder="Çekici plakası" style="margin-top:7px">
-<input id="demoCity" placeholder="İl / İlçe" style="margin-top:7px">
-<button id="addOrder" class="secondary">＋ Test Siparişi Ekle</button>
+</section>
+
+<section id="completed" class="hidden">
+<div class="summary">
+<div class="stat"><b id="doneCount">0</b><span>Tamamlanan</span></div>
+<div class="stat"><b id="doneTotal">0</b><span>Tamamlanan m²</span></div>
+<div class="stat"><b id="doneForms">0</b><span>Teslim Formu</span></div>
+</div>
+<div class="card">
+<button class="filter-toggle" id="completedFilterToggle" type="button">🔎 Filtre Seçenekleri</button>
+<div id="completedFilterPanel" class="filter-panel hidden">
+<div class="filters">
+<input id="doneSearch" placeholder="🔎 Tamamlananlarda ara">
+<select id="doneCity"><option value="">Tüm iller</option></select>
+<select id="doneProduct"><option value="">Tüm ürünler</option><option>Yerden Isıtma</option><option>Mantolama</option></select>
+</div>
+<label>EKRANDA TARİH FİLTRESİ — BAŞLANGIÇ</label><input id="doneFrom" type="date">
+<label>EKRANDA TARİH FİLTRESİ — BİTİŞ</label><input id="doneTo" type="date">
+<button class="secondary" id="doneClearDates" type="button">🔄 Tarih Filtresini Temizle</button>
+<hr style="border:0;border-top:1px solid #e5e7eb;margin:14px 0">
+<label>EXCEL DIŞA AKTARMA — BAŞLANGIÇ</label><input id="exportFrom" type="date">
+<label>EXCEL DIŞA AKTARMA — BİTİŞ</label><input id="exportTo" type="date">
+<button class="primary" id="exportBtn">📤 Dışa Aktar</button>
+</div>
+</div>
+<div id="completedOrders"></div>
+
+<div id="whatsappShareCard" class="card share-card hidden">
+  <b>📲 WhatsApp Teslim Formu</b>
+  <div id="shareStatus" class="share-status">WhatsApp'tan paylaşılan fotoğraf burada görünecek.</div>
+  <div id="shareProgress" class="progress hidden"><i id="shareProgressBar"></i></div>
+  <img id="sharePreview" class="share-preview hidden" alt="Teslim formu">
+  <div id="shareOcrText" class="ocr-text hidden"></div>
+  <div id="shareMatches"></div>
+  <button class="secondary hidden" id="shareClear" type="button">🗑️ Fotoğrafı Temizle</button>
 </div>
 
-<div class="card">
-<b>3. OCR</b>
-<div id="ocrStatus" class="status">OCR henüz çalışmadı.</div>
-<button id="ocrBtn">🔎 Fotoğrafı Oku ve Eşleştir</button>
-<pre id="ocrText" class="hidden"></pre>
-</div>
-
-<div class="card">
-<b>4. Eşleşme Sonucu</b>
-<div id="matches"><p class="small">OCR'dan sonra en uygun siparişler burada gösterilir.</p></div>
-</div>
-
-<div class="card">
-<b>5. Teslim Formu Kaydı</b>
-<p class="small">İlk testte kayıt işlemi bu uygulamanın kendi IndexedDB'sine yapılır. Ana Cenkar verisine dokunmaz.</p>
-<button id="saveBtn" class="hidden">📎 Seçilen Siparişe Teslim Formunu Kaydet</button>
-<button id="viewBtn" class="secondary hidden">📄 Kaydedilen Formu Gör</button>
-</div>
+</section>
 </main>
 
-<script>
-const DB='cenkar_ocr_test_db';
-let currentFile=null,currentMatches=[],selectedOrderId=null;
-function loadRealOrders(){
- try{
-  const raw=localStorage.getItem('cenkar_orders');
-  const parsed=raw?JSON.parse(raw):[];
-  if(Array.isArray(parsed)&&parsed.length){
-   return parsed.filter(o=>o&&!o.id).length?parsed.filter(o=>o&&o.id):parsed;
-  }
- }catch(e){console.warn('Gerçek siparişler okunamadı:',e)}
- return [];
-}
-let realOrders=loadRealOrders();
-let usingRealOrders=realOrders.length>0;
-let orders=usingRealOrders?realOrders:(JSON.parse(localStorage.getItem('cenkar_ocr_test_orders')||'null')||[
- {id:1,customer:'DEMO MÜŞTERİ 1',phone:'05321234567',plate:'21 ABC 123',city:'DİYARBAKIR',district:'KAYAPINAR'},
- {id:2,customer:'DEMO MÜŞTERİ 2',phone:'05429876543',plate:'34 XYZ 456',city:'İSTANBUL',district:'BAĞCILAR'},
- {id:3,customer:'DEMO MÜŞTERİ 3',phone:'05551112233',plate:'06 CEN 789',city:'ANKARA',district:'SİNCAN'}
-]);
+<input id="fileInput" type="file" accept="image/*,.pdf" hidden>
 
+<div id="editModal" class="modal">
+<div class="modal-box">
+<div class="modal-head"><h2>✏️ Siparişi Düzenle</h2><button class="close" id="closeEdit">×</button></div>
+<div class="grid">
+<div class="full"><label>Müşteri</label><input id="e_customer"></div>
+<div><label>Ürün çeşidi</label><select id="e_product"><option>Yerden Isıtma</option><option>Mantolama</option></select></div>
+<div><label>Yoğunluk (DNS)</label><select id="e_density"></select></div>
+<div><label>İl</label><input id="e_city"></div>
+<div><label>İlçe</label><input id="e_district"></div>
+<div class="full"><label>İrtibat Telefonu</label><input id="e_phone" type="tel"></div>
+<div id="e_quantityBox"><label id="e_quantityLabel">Miktar (Paket)</label><input id="e_sqm" type="number"></div>
+<div id="e_quantityTypeBox"><label>Miktar Türü</label><select id="e_quantityType"><option value="Paket">Paket</option><option value="1 TIR">1 TIR</option></select></div>
+<div id="e_foilBox"><label>Yerden Isıtma</label><select id="e_foil"><option>Folyolu</option><option>Folyosuz</option></select></div>
+<div id="e_packageBox" class="hidden"><label>Paket Sayısı</label><input id="e_packageCount" type="number" inputmode="numeric" min="0"></div>
+<div id="e_epsTypeBox" class="hidden"><label>Mantolama Tipi</label><select id="e_epsType"><option>Beyaz EPS</option><option>Karbonlu</option></select></div>
+<div id="e_teamSystemBox" class="hidden"><label>Takım Sistem</label><select id="e_teamSystem"><option>Evet</option><option>Hayır</option></select></div>
+<div id="e_thicknessBox"><label>Kalınlık (cm)</label><select id="e_thickness"></select></div>
+<div><label>Sevkiyat tarihi</label><input id="e_date" type="date"></div>
+<div><label>Çekici plakası</label><input id="e_tractor"></div>
+<div><label>Dorse plakası</label><input id="e_trailer"></div>
+<div><label>Şoför</label><input id="e_driver"></div>
+<div><label>Şoför Tel</label><input id="e_soforTel" type="tel"></div>
+<div><label>Nakliye ücreti (TL)</label><input id="e_freight" type="text" inputmode="decimal" pattern="[0-9.,]*" autocomplete="off"></div>
+<div><label>Ödeme şekli</label><select id="e_freightPayment"><option>Bize ait</option><option>Karşı ödemeli</option></select></div>
+<div><label>KDV</label><select id="e_vat"><option>Yok</option><option>Var</option></select></div>
+<div class="full"><label>Sevk Bilgilerini Yapıştır</label><textarea id="e_shipmentPaste"></textarea><button class="primary" id="editParseShipment">📋 Yapıştır → Bilgileri Doldur</button></div>
+<div class="full"><label>Not</label><textarea id="e_note"></textarea></div>
+</div>
+<div class="modal-actions"><button class="cancel" id="cancelEdit">Vazgeç</button><button class="save" id="saveEdit">Değişiklikleri Kaydet</button></div>
+</div>
+</div>
+
+<div id="cloudModal" class="modal">
+<div class="modal-box cloud-box">
+<h2>☁️ CENKAR BULUT</h2>
+<div id="cloudLoggedOut">
+<input id="cloudEmail" type="email" placeholder="E-posta">
+<input id="cloudPassword" type="password" placeholder="Şifre">
+<button id="cloudLogin">Giriş Yap</button>
+<button id="cloudSignup">Yeni Hesap Oluştur</button>
+</div>
+<div id="cloudLoggedIn" class="hidden">
+<p id="cloudUserText"></p>
+<button id="cloudSync">☁️ Şimdi Senkronize Et</button>
+<button id="cloudLogout">Çıkış Yap</button>
+</div>
+<button class="secondary" id="cloudClose">Kapat</button>
+</div>
+</div>
+
+<script>
 const $=id=>document.getElementById(id);
-function esc(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
-function norm(s){return String(s||'').toUpperCase().replace(/İ/g,'I').replace(/Ğ/g,'G').replace(/Ü/g,'U').replace(/Ş/g,'S').replace(/Ö/g,'O').replace(/Ç/g,'C').replace(/[^A-Z0-9]/g,'')}
-function digits(s){return String(s||'').replace(/\D/g,'')}
-function renderOrders(){
- $('orders').innerHTML=orders.map(o=>`<div class="candidate"><b>${esc(o.customer)}</b><div class="small">Tel: ${esc(o.phone||'')} · Plaka: ${esc(o.tractor||o.plate||'')} · ${esc(o.city||'')}/${esc(o.district||'')}</div></div>`).join('');
+let data=[];
+let deletedIds=[];
+try{ data=JSON.parse(localStorage.getItem('cenkar_orders')||'[]'); if(!Array.isArray(data))data=[]; }catch(e){ console.warn('Yerel sipariş verisi okunamadı',e); data=[]; }
+try{ deletedIds=JSON.parse(localStorage.getItem('cenkar_deleted_ids')||'[]'); if(!Array.isArray(deletedIds))deletedIds=[]; }catch(e){ deletedIds=[]; }
+let editingId=null,selectedOrderForFile=null,cloudUser=null,cloudBusy=false,cloudSyncTimer=null,cloudLastSync=0;
+
+const SUPABASE_URL='https://tcyivfotanbyeaofsxkr.supabase.co';
+const SUPABASE_KEY='sb_publishable_qKkQhF16iwWFnBlCYYAE9w_HramTpDL';
+let sb=null;
+function initSupabaseClient(){
+  if(window.supabase && !sb){
+    try{ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY); }catch(e){ console.warn('Supabase başlatılamadı',e); }
+  }
 }
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function saveLocal(){try{localStorage.setItem('cenkar_orders',JSON.stringify(data));return true}catch(e){console.error('Yerel kayıt hatası:',e);alert('Kayıt yapılamadı: telefon hafızasında yerel kayıt sorunu var.');return false}}
+function setDensity(select,product,old){
+ select.innerHTML='';
+ if(product==='Mantolama'){for(let i=8;i<=24;i+=2)select.add(new Option(i,i))}
+ else {for(let i=22;i<=40;i+=2)select.add(new Option(i,i))}
+ if(old && [...select.options].some(o=>o.value===String(old)))select.value=old;
+}
+function setThickness(select){select.innerHTML='';for(let i=1;i<=15;i++)select.add(new Option(i,i))}
+function updateQuantityUI(edit=false){
+ const p=$(edit?'e_product':'product').value,isY=p==='Yerden Isıtma';
+ const type=$(edit?'e_quantityType':'quantityType');
+ const box=$(edit?'e_quantityBox':'quantityBox');
+ const label=$(edit?'e_quantityLabel':'quantityLabel');
+ const input=$(edit?'e_sqm':'sqm');
+ if(isY){
+   type.value=type.value||'Paket';
+   const isTir=type.value==='1 TIR';
+   box.classList.toggle('hidden',isTir);
+   label.textContent='Miktar (Paket)';
+   input.placeholder='Paket adedi';
+ }else{
+   box.classList.remove('hidden');
+   label.textContent='Miktar (m²)';
+   input.placeholder='Örn. 1000';
+ }
+}
+function productChanged(){
+ const p=$('product').value,isY=p==='Yerden Isıtma',isM=p==='Mantolama';
+ $('foilBox').classList.toggle('hidden',!isY);
+ $('quantityTypeBox').classList.toggle('hidden',!isY);
+ $('packageBox').classList.toggle('hidden',true);
+ $('epsTypeBox').classList.toggle('hidden',!isM);
+ $('teamSystemBox').classList.toggle('hidden',!isM);
+ $('thicknessBox').classList.toggle('hidden',!isM);
+ setDensity($('density'),p,$('density').value);
+ if(isM)setThickness($('thickness'));
+ updateQuantityUI(false);
+}
+function editProductChanged(){
+ const p=$('e_product').value,isY=p==='Yerden Isıtma',isM=p==='Mantolama';
+ $('e_foilBox').classList.toggle('hidden',!isY);
+ $('e_quantityTypeBox').classList.toggle('hidden',!isY);
+ $('e_packageBox').classList.toggle('hidden',true);
+ $('e_epsTypeBox').classList.toggle('hidden',!isM);
+ $('e_teamSystemBox').classList.toggle('hidden',!isM);
+ $('e_thicknessBox').classList.toggle('hidden',!isM);
+ const old=$('e_density').value;setDensity($('e_density'),p,old);
+ if(isM)setThickness($('e_thickness'));
+ updateQuantityUI(true);
+}
+function showSection(section,btn){
+ const target=document.getElementById(section);
+ if(!target)return false;
+ document.querySelectorAll('main > section').forEach(function(s){
+   s.classList.add('hidden');
+ });
+ target.classList.remove('hidden');
+ document.querySelectorAll('.tab').forEach(function(b){
+   b.classList.remove('active');
+ });
+ if(btn)btn.classList.add('active');
+ if(section==='list'){
+   populateCities();
+   renderActive();
+ }
+ if(section==='completed'){
+   populateCities();
+   renderCompleted();
+ }
+ return false;
+}
+window.showSection=showSection;
+
+// Metin alanları: boşluk tuşuna ve iOS seçim imlecine müdahale etmiyoruz.
+// Büyük harf CSS ile görünür, kayıt sırasında da normalize edilir.
+
+function parseFlexibleNumber(v){const s=String(v??'').trim().replace(/\s/g,'');if(!s)return 0;if(s.includes(','))return Number(s.replace(/\./g,'').replace(',','.'))||0;if(/^\d+\.\d{3}$/.test(s))return Number(s.replace(/\./g,''))||0;return Number(s)||0}
+function upperTR(v){return String(v??'').toLocaleUpperCase('tr-TR')}
+function save(){
+ try{
+  const customer=upperTR($('customer').value).trim();
+  if(!customer){alert('Müşteri adını girin.');return;}
+  const item={
+   id:Date.now(),customer,phone:$('phone').value.trim(),product:$('product').value,
+   city:upperTR($('city').value).trim(),district:upperTR($('district').value).trim(),
+   sqm:Number($('sqm').value)||0,quantityType:$('product').value==='Yerden Isıtma'?($('quantityType').value||'Paket'):'m²',density:$('density').value,foil:$('foil').value,packageCount:Number($('packageCount').value)||0,epsType:$('epsType').value,teamSystem:$('teamSystem').value,
+   thickness:$('thickness').value,date:$('date').value,
+   tractor:upperTR($('tractor').value).trim(),trailer:upperTR($('trailer').value).trim(),
+   driver:upperTR($('driver').value).trim(),soforTel:$('soforTel').value.trim(),
+   freight:parseFlexibleNumber($('freight').value),freightPayment:$('freightPayment').value,
+   vat:$('vat').value,note:upperTR($('note').value).trim(),completed:false,updatedAt:Date.now()
+  };
+  if(!Array.isArray(data))data=[];
+  data.unshift(item);
+  if(!saveLocal())return;
+  alert('Sipariş kaydedildi.');
+  try{populateCities();renderActive();renderCompleted();}catch(e){console.error('Liste yenileme hatası:',e)}
+  try{const listBtn=document.querySelector('.tab[data-section="list"]');showSection('list',listBtn)}catch(e){console.error('Sekme geçiş hatası:',e)}
+  try{resetForm()}catch(e){console.error('Form temizleme hatası:',e)}
+ }catch(e){console.error('Kayıt hatası:',e);alert('Sipariş kaydedilirken hata oluştu. Hata: '+(e&&e.message?e.message:e));}
+}
+function resetForm(){
+ document.querySelectorAll('#new input,#new textarea').forEach(x=>x.value='');
+ $('product').value='Yerden Isıtma';$('quantityType').value='Paket';$('packageCount').value='';$('epsType').value='Beyaz EPS';$('teamSystem').value='Evet';$('freightPayment').value='Bize ait';$('vat').value='Yok';productChanged();
+}
+function matches(x,q,city,prod){
+ const text=[x.customer,x.phone,x.tractor,x.trailer,x.driver,x.city,x.district].join(' ').toLowerCase();
+ return(!q||text.includes(q))&&(!city||x.city===city)&&(!prod||x.product===prod)
+}
+function populateCities(){
+ const cities=[...new Set(data.map(x=>x.city).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'tr'));
+ const opts='<option value="">Tüm iller</option>'+cities.map(c=>`<option>${esc(c)}</option>`).join('');
+ $('fcity').innerHTML=opts;$('doneCity').innerHTML=opts;
+}
+function orderHTML(x){
+ const isY=x.product==='Yerden Isıtma';
+ const qty=isY?(x.quantityType==='1 TIR'?'🚛 1 TIR':`📦 ${Number(x.sqm||0).toLocaleString('tr-TR')} Paket`):`<b>${Number(x.sqm||0).toLocaleString('tr-TR')} m²</b>`;
+ const product=isY?`${esc(x.product)} · ${esc(x.foil)} · ${esc(x.density)} DNS`:x.product==='Mantolama'?`${esc(x.product)} · ${esc(x.epsType||'Beyaz EPS')} · Takım Sistem: ${esc(x.teamSystem||'Hayır')} · ${esc(x.thickness)} cm · ${esc(x.density)} DNS`:esc(x.product);
+ return `<div class="order"><div class="order-top"><b>${esc(x.customer)}</b>${x.completed?'<span class="badge">Tamamlandı</span>':''}</div>
+ <div class="meta"><b>${product}</b> · ${esc(x.city)||'-'} / ${esc(x.district)||'-'} · ${qty}<br>
+ 📅 ${esc(x.date)||'-'} · 🚛 ${esc(x.tractor)||'-'} / ${esc(x.trailer)||'-'} · 👤 ${esc(x.driver)||'-'}<br>
+ 📞 <a href="tel:${String(x.phone||'').replace(/[^0-9+]/g,'')}">${esc(x.phone)||'-'}</a> · ☎️ <a href="tel:${String(x.soforTel||'').replace(/[^0-9+]/g,'')}">${esc(x.soforTel)||'-'}</a><br>
+ 💰 Nakliye: ${x.freight?Number(x.freight).toLocaleString('tr-TR')+' TL':'-'} · Ödeme: ${esc(x.freightPayment||'Bize ait')} · KDV: ${esc(x.vat)||'-'}</div>
+ <div class="actions"><button onclick="shareOrder(${x.id})">📤 Paylaş</button><button onclick="openEdit(${x.id})">✏️ Düzenle</button>
+ ${!x.completed?`<button onclick="completeOrder(${x.id})">✅ Tamamlandı</button>`:''}
+ <button onclick="chooseFile(${x.id})">📎 Teslim Formu</button>${x.completed?`<button onclick="viewFile(${x.id})">📄 Formu Görüntüle</button>`:''}
+ <button class="danger" onclick="delOrder(${x.id})">Sil</button></div></div>`;
+}
+function renderActive(){
+ const q=$('search').value.toLowerCase(),arr=data.filter(x=>!x.completed&&matches(x,q,$('fcity').value,$('fproduct').value));
+ const active=data.filter(x=>!x.completed);$('count').textContent=active.length;$('total').textContent=active.filter(x=>x.product==='Mantolama').reduce((a,x)=>a+Number(x.sqm||0),0).toLocaleString('tr-TR');$('pending').textContent=active.filter(x=>!x.tractor||!x.trailer||!x.driver).length;
+ $('orders').innerHTML=arr.length?arr.map(orderHTML).join(''):'<div class="card">Aktif sipariş bulunamadı.</div>';
+}
+function renderCompleted(){
+ const all=data.filter(x=>x.completed);
+ const q=$('doneSearch').value.toLowerCase(),from=$('doneFrom').value,to=$('doneTo').value;
+ const arr=all.filter(x=>{
+   const match=matches(x,q,$('doneCity').value,$('doneProduct').value);
+   const d=x.date||'';
+   return match&&(!from||d>=from)&&(!to||d<=to);
+ });
+ $('doneCount').textContent=arr.length;
+ $('doneTotal').textContent=arr.filter(x=>x.product==='Mantolama').reduce((a,x)=>a+Number(x.sqm||0),0).toLocaleString('tr-TR');
+ $('doneForms').textContent='—';
+ $('completedOrders').innerHTML=arr.length?arr.map(orderHTML).join(''):'<div class="card">Seçilen tarih aralığında tamamlanan sipariş bulunamadı.</div>';
+}
+function todayLocal(){
+ const d=new Date();
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function completeOrder(id){
+ const x=data.find(a=>a.id===id);
+ if(x&&confirm('Bu siparişi tamamlananlara taşınsın mı?')){
+   x.completed=true;
+   x.date=todayLocal();
+   x.updatedAt=Date.now();
+   saveLocal();
+   cloudUpsert(x);
+   renderActive();
+   renderCompleted();
+ }
+}
+function delOrder(id){if(confirm('Bu sipariş silinsin mi?')){data=data.filter(x=>x.id!==id);if(!deletedIds.includes(String(id)))deletedIds.push(String(id));localStorage.setItem('cenkar_deleted_ids',JSON.stringify(deletedIds));saveLocal();if(cloudUser&&sb)cloudDelete(id);renderActive();renderCompleted()}}
+
+function openEdit(id){
+ const x=data.find(a=>a.id===id);if(!x)return;editingId=id;
+ ['customer','phone','city','district','sqm','date','tractor','trailer','driver','soforTel','freight','note'].forEach(k=>{if($('e_'+k))$('e_'+k).value=x[k]??''});
+ $('e_product').value=x.product||'Yerden Isıtma';$('e_quantityType').value=x.quantityType||'Paket';editProductChanged();$('e_density').value=x.density||$('e_density').value;$('e_foil').value=x.foil||'Folyolu';$('e_packageCount').value=x.packageCount??'';$('e_epsType').value=x.epsType||'Beyaz EPS';$('e_teamSystem').value=x.teamSystem||'Hayır';if(x.thickness)$('e_thickness').value=x.thickness;$('e_freightPayment').value=x.freightPayment||'Bize ait';$('e_vat').value=x.vat||'Yok';$('e_shipmentPaste').value='';$('editModal').classList.add('show');
+}
+function closeEdit(){$('editModal').classList.remove('show');editingId=null}
+function saveEdit(){
+ const x=data.find(a=>a.id===editingId);if(!x)return;
+ const customer=upperTR($('e_customer').value).trim();if(!customer)return alert('Müşteri adını girin.');
+ Object.assign(x,{customer,phone:$('e_phone').value.trim(),product:$('e_product').value,city:upperTR($('e_city').value).trim(),district:upperTR($('e_district').value).trim(),sqm:Number($('e_sqm').value)||0,quantityType:$('e_product').value==='Yerden Isıtma'?($('e_quantityType').value||'Paket'):'m²',density:$('e_density').value,foil:$('e_foil').value,packageCount:Number($('e_packageCount').value)||0,epsType:$('e_epsType').value,teamSystem:$('e_teamSystem').value,thickness:$('e_thickness').value,date:$('e_date').value,tractor:upperTR($('e_tractor').value).trim(),trailer:upperTR($('e_trailer').value).trim(),driver:upperTR($('e_driver').value).trim(),soforTel:$('e_soforTel').value.trim(),freight:parseFlexibleNumber($('e_freight').value)||0,freightPayment:$('e_freightPayment').value,vat:$('e_vat').value,note:upperTR($('e_note').value).trim(),updatedAt:Date.now()});
+ saveLocal();cloudUpsert(x);closeEdit();populateCities();renderActive();renderCompleted();
+}
+
+function parseOrderText(raw){
+ let t=raw.replace(/\r/g,'\n').replace(/[ \t]+/g,' ').trim(),p={};
+ let m=t.match(/(?:MÜŞTERİ|MUSTERI|MÜŞTERİ ADI|MUSTERI ADI)\s*[:\-]?\s*([^\n]+)/i);if(m)p.customer=m[1].trim();
+ m=t.match(/(?:TEL|TLF|TELEFON|CEP)\s*[:\-]?\s*(0?5\d{9})/i);if(m)p.phone=m[1];
+ m=t.match(/(?:MİKTAR|MIKTAR|M2|M²|METREKARE)\s*[:\-]?\s*([\d.,]+)/i);if(m)p.sqm=m[1].replace(/\./g,'').replace(',','.');
+ m=t.match(/(?:ÜRÜN|URUN|ÜRÜN ÇEŞİDİ|URUN CESIDI)\s*[:\-]?\s*([^\n]+)/i);if(m)p.product=normalizeProduct(m[1]);
+ if(!p.product){if(/mantolama/i.test(t))p.product='Mantolama';else if(/yerden\s*ısıtma|yerden\s*isitma/i.test(t))p.product='Yerden Isıtma';}
+ m=t.match(/(?:İLÇE|ILCE)\s*[:\-]?\s*([^\n/]+)/i);if(m)p.district=m[1].trim();
+ m=t.match(/(?:İL|IL|ŞEHİR|SEHIR)\s*[:\-]?\s*([^\n/]+)/i);if(m)p.city=m[1].trim();
+ m=t.match(/\b(22|24|26|28|30|32|34|36|38|40)\s*DNS\b/i);if(m)p.density=m[1];
+ if(/folyosuz/i.test(t))p.foil='Folyosuz';else if(/folyolu/i.test(t))p.foil='Folyolu';
+ m=t.match(/\b(1[0-5]|[1-9])\s*cm\b/i);if(m)p.thickness=m[1];
+ if(!p.customer){for(const line of t.split('\n').map(s=>s.trim()).filter(Boolean)){if(/\d{5,}|^(TEL|TLF|MİKTAR|ÜRÜN|İL|İLÇE)\b/i.test(line))continue;if(/^[A-Za-zÇĞİÖŞÜçğıöşü .&'-]{3,60}$/.test(line)){p.customer=line;break}}}
+ return p;
+}
+function normalizeProduct(s){if(/yerden\s*ısıtma|yerden\s*isitma/i.test(s))return'Yerden Isıtma';if(/mantolama/i.test(s))return'Mantolama';return''}
+function applyOrder(){
+ const p=parseOrderText($('orderPaste').value);if(!Object.keys(p).length)return alert('Sipariş bilgisi bulunamadı.');
+ if(p.customer)$('customer').value=p.customer;if(p.phone)$('phone').value=p.phone;if(p.product){$('product').value=p.product;productChanged()}if(p.city)$('city').value=p.city;if(p.district)$('district').value=p.district;if(p.sqm)$('sqm').value=p.sqm;if(p.product==='Yerden Isıtma'&&/1\s*TIR/i.test($('orderPaste').value)){$('quantityType').value='1 TIR';}else if(p.product==='Yerden Isıtma'){$('quantityType').value='Paket';}if(p.density)$('density').value=p.density;if(p.foil)$('foil').value=p.foil;if(p.thickness){productChanged();$('thickness').value=p.thickness}
+ alert('Bulunan sipariş bilgileri forma aktarıldı. Kaydetmeden önce kontrol edin.');
+}
+
+function parseShipmentText(raw){
+ const t=raw.replace(/\r/g,' ').replace(/\n/g,' ').replace(/\s+/g,' ').trim();
+ let p={};
+
+ // Plakalar: "ÇEKİCİ 16 BOJ 726 DORSE 16 AGG 200" veya "11 DT 432/11 ABV 460"
+ let m=t.match(/(?:ÇEKİCİ|CEKICI)\s*[:\-]?\s*([0-9]{2}\s*[A-ZÇĞİÖŞÜ]{1,3}\s*[0-9]{2,4})/i);
+ if(m)p.tractor=upperTR(m[1]).replace(/\s+/g,' ').trim();
+ m=t.match(/DORSE\s*[:\-]?\s*([0-9]{2}\s*[A-ZÇĞİÖŞÜ]{1,3}\s*[0-9]{2,4})/i);
+ if(m)p.trailer=upperTR(m[1]).replace(/\s+/g,' ').trim();
+ if(!p.tractor||!p.trailer){
+   m=t.match(/([0-9]{2}\s*[A-ZÇĞİÖŞÜ]{1,3}\s*[0-9]{2,4})\s*\/\s*([0-9]{2}\s*[A-ZÇĞİÖŞÜ]{1,3}\s*[0-9]{2,4})/i);
+   if(m){p.tractor=p.tractor||upperTR(m[1]).replace(/\s+/g,' ');p.trailer=p.trailer||upperTR(m[2]).replace(/\s+/g,' ');}
+ }
+
+ // Telefon: TLF/TELEFON/ŞOFÖR TEL; TC numarasını telefon olarak alma.
+ m=t.match(/(?:ŞOFÖR\s*TEL|SOFOR\s*TEL|TLF|TELEFON|CEP)\s*[:\-]?\s*(0?5\s*\d{3}\s*\d{3}\s*\d{2}\s*\d{2}|0?5\d{9})/i);
+ if(m)p.soforTel=m[1].replace(/\s/g,'');
+ if(!p.soforTel){
+   const phones=t.match(/0?5\d{9}/g);
+   if(phones)p.soforTel=phones[phones.length-1];
+ }
+
+ // Şoför adı: etiketli biçimler
+ m=t.match(/(?:ŞOFÖR|SOFOR)\s*[:\-]?\s*([A-Za-zÇĞİÖŞÜçğıöşü]+(?:\s+[A-Za-zÇĞİÖŞÜçğıöşü]+){1,3})(?=\s+(?:TC|TLF|TEL|TELEFON|0?5\d|DİYARBAKIR|DIYARBAKIR|İSTANBUL|ISTANBUL|ANKARA|İZMİR|IZMIR)\b|$)/i);
+ if(m)p.driver=upperTR(m[1]).trim();
+
+ // "TC:... 0532..." sonrasında gelen adlarda sık görülen "Mustafa Çakır" biçimi
+ if(!p.driver){
+   const candidates=t.match(/\b([A-Za-zÇĞİÖŞÜçğıöşü]{2,25}\s+[A-Za-zÇĞİÖŞÜçğıöşü]{2,25})\b/g)||[];
+   const bad=/^(CENKAR|FABRİKA|FABRIKA|DİYARBAKIR|DIYARBAKIR|TEKİRDAĞ|TEKIRDAG|KDV|ÖDEME|ODEME|TENTELİ|TENTELI)$/i;
+   for(const c of candidates){
+     const parts=c.trim().split(/\s+/);
+     if(parts.length===2&&!bad.test(parts[0])&&!bad.test(parts[1])&&!/\d/.test(c)){p.driver=upperTR(c);break}
+   }
+ }
+
+ // Varış: açık etiket veya şehir/ilçe çifti.
+ m=t.match(/(?:VARIŞ|VARIS|TESLİMAT|TESLIMAT)\s*[:\-]?\s*([A-Za-zÇĞİÖŞÜçğıöşü]+)\s*\/\s*([A-Za-zÇĞİÖŞÜçğıöşü]+)/i);
+ if(m){p.city=upperTR(m[1]);p.district=upperTR(m[2]);}
+ if(!p.city){
+   m=t.match(/\b(Diyarbakır|Tekirdağ|İstanbul|Ankara|İzmir|Bursa|Kocaeli|Konya|Antalya|Adana|Mersin|Kayseri|Gaziantep|Şanlıurfa|Malatya|Elazığ|Van|Erzurum|Samsun|Trabzon|Sakarya|Manisa|Denizli|Eskişehir|Balıkesir|Hatay|Muğla|Aydın|Çanakkale|Kahramanmaraş|Osmaniye|Mardin|Batman|Siirt|Bitlis|Bingöl|Şırnak|Hakkari|Ağrı|Iğdır|Kars|Ardahan|Artvin|Rize|Giresun|Ordu|Tokat|Amasya|Çorum|Sinop|Kastamonu|Karabük|Bartın|Zonguldak|Düzce|Bolu|Bilecik|Kütahya|Uşak|Afyonkarahisar|Isparta|Burdur|Kırklareli|Edirne|Yalova|Çankırı|Kırıkkale|Nevşehir|Niğde|Aksaray|Karaman|Kırşehir|Yozgat|Sivas|Tunceli|Adıyaman|Kilis|Muş)\s*\/\s*([A-Za-zÇĞİÖŞÜçğıöşü]+)/i);
+   if(m){p.city=upperTR(m[1]);p.district=upperTR(m[2]);}
+ }
+
+ // Freight: 47.bin / 47 bin / 47000 TL
+ m=t.match(/(\d+(?:[\.,]\d+)?)\s*(?:bin|BİN)?\s*TL/i);
+ if(m){let n=Number(m[1].replace(/\./g,'').replace(',','.'));p.freight=/bin/i.test(m[0])?n*1000:n;}
+
+ if(/KDV\s*(?:YOK|0|SIFIR)/i.test(t))p.vat='Yok';
+ else if(/KDV\s*(?:VAR|DAHİL|DAHIL)/i.test(t))p.vat='Var';
+
+ return p;
+}
+function applyShipment(mode){
+ const edit=mode==='edit',raw=$(edit?'e_shipmentPaste':'shipmentPaste').value.trim();
+ if(!raw)return alert('Önce sevk mesajını yapıştırın.');
+ const p=parseShipmentText(raw),pre=edit?'e_':'';
+ const fields=['tractor','trailer','driver','soforTel','city','district','freight','vat'];
+ let found=0;
+ for(const k of fields){
+   if(p[k]!==undefined&&$(pre+k)){
+     $(pre+k).value=String(p[k]);
+     found++;
+   }
+ }
+ if(!found)return alert('Sevk mesajından şoför/plaka bilgisi bulunamadı.');
+ alert('Bulunan sevk bilgileri forma aktarıldı. Kaydetmeden önce kontrol edin.');
+}
+function shareOrder(id){
+ const x=data.find(o=>String(o.id)===String(id));if(!x)return;
+ const lines=['CENKAR SEVKİYAT','',`MÜŞTERİ: ${x.customer||'-'}`,`ÜRÜN ÇEŞİDİ: ${x.product||'-'}`,`YOĞUNLUK: ${x.density||'-'} DNS`];
+ if(x.product==='Yerden Isıtma'){lines.push(`FOLYOLU / FOLYOSUZ: ${x.foil||'-'}`);if(x.quantityType==='1 TIR')lines.push('MİKTAR: 1 TIR');else lines.push(`MİKTAR: ${Number(x.sqm||0)||Number(x.packageCount||0)} PAKET`);}
+ if(x.product==='Mantolama')lines.push(`MANTOLAMA TİPİ: ${x.epsType||'Beyaz EPS'}`,`TAKIM SİSTEM: ${x.teamSystem||'Hayır'}`,`KALINLIK: ${x.thickness||'-'} cm`);
+ lines.push(`İL / İLÇE: ${x.city||'-'} / ${x.district||'-'}`,`İRTİBAT: ${x.phone||'-'}`,`NOT: ${x.note||'-'}`,'',`PLAKA - ÇEKİCİ: ${x.tractor||'-'}`,`PLAKA - DORSE: ${x.trailer||'-'}`,`ŞOFÖR: ${x.driver||'-'}`,`ŞOFÖR TEL: ${x.soforTel||'-'}`);
+ const text=lines.join('\n');
+ if(navigator.share)navigator.share({title:'CENKAR SEVKİYAT',text}).catch(()=>{});
+ else navigator.clipboard?.writeText(text).then(()=>alert('Bilgiler kopyalandı.'));
+}
+
+const DB='cenkar_files_db';
 function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore('files',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
-async function getSharedFile(){
- const db=await openDB(); const r=db.transaction('files').objectStore('files').get('latest');
- r.onsuccess=()=>{if(r.result){currentFile=r.result.blob;$('preview').src=URL.createObjectURL(currentFile);$('preview').classList.remove('hidden');$('status').textContent='✅ Fotoğraf uygulamaya geldi: '+(r.result.name||'teslim-formu.jpg');$('status').className='status ok';} }
+async function chooseFile(id){selectedOrderForFile=id;$('fileInput').click()}
+$('fileInput').onchange=async e=>{const f=e.target.files[0];if(!f||!selectedOrderForFile)return;const db=await openDB();const tx=db.transaction('files','readwrite');tx.objectStore('files').put({id:selectedOrderForFile,name:f.name,blob:f});tx.oncomplete=()=>alert('Teslim formu kaydedildi.')}
+async function viewFile(id){const db=await openDB();const r=db.transaction('files').objectStore('files').get(id);r.onsuccess=()=>{if(r.result)window.open(URL.createObjectURL(r.result.blob),'_blank');else alert('Teslim formu bulunamadı.')}}
+
+const SHARE_DB='cenkar_share_db';
+let sharedPhoto=null;
+function openShareDB(){
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open(SHARE_DB,1);
+    r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('incoming'))r.result.createObjectStore('incoming',{keyPath:'id'})};
+    r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);
+  });
+}
+async function getSharedPhoto(){
+  const db=await openShareDB();
+  return new Promise((res,rej)=>{
+    const r=db.transaction('incoming','readonly').objectStore('incoming').get('latest');
+    r.onsuccess=()=>res(r.result||null); r.onerror=()=>rej(r.error);
+  });
+}
+async function clearSharedPhoto(){
+  const db=await openShareDB();
+  return new Promise((res,rej)=>{
+    const tx=db.transaction('incoming','readwrite');
+    tx.objectStore('incoming').delete('latest');
+    tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error);
+  });
+}
+function digits(v){return String(v||'').replace(/\D/g,'')}
+function norm(v){
+  return upperTR(String(v||'')).replace(/İ/g,'I').replace(/Ğ/g,'G').replace(/Ü/g,'U').replace(/Ş/g,'S').replace(/Ö/g,'O').replace(/Ç/g,'C').replace(/[^A-Z0-9]/g,'');
+}
+function tokens(v){
+  return norm(v).match(/[A-Z0-9]{2,}/g)||[];
 }
 function similarity(a,b){
- a=norm(a);b=norm(b);if(!a||!b)return 0;if(a===b)return 1;
- let hits=0;for(const ch of new Set(a)){if(b.includes(ch))hits++}return hits/Math.max(new Set(a).size,new Set(b).size);
+  const A=tokens(a),B=tokens(b); if(!A.length||!B.length)return 0;
+  let hit=0; for(const x of A)if(B.some(y=>y===x||y.includes(x)||x.includes(y)))hit++;
+  return hit/Math.max(A.length,B.length);
 }
-function extractFields(text){
- const t=text.toUpperCase();
- const out={phones:[],plates:[],cities:[]};
- let ms=t.match(/(?:0?5[\d\s().-]{9,})/g)||[];
- out.phones=[...new Set(ms.map(x=>digits(x).slice(-10)).filter(x=>x.length===10))];
- const pm=t.match(/\b\d{2}\s*[A-ZÇĞİÖŞÜ]{1,3}\s*\d{2,4}\b/g)||[];
- out.plates=[...new Set(pm.map(x=>norm(x)))];
- const cities=['ADANA','ADIYAMAN','AFYONKARAHİSAR','AĞRI','AKSARAY','AMASYA','ANKARA','ANTALYA','ARDAHAN','ARTVİN','AYDIN','BALIKESİR','BARTIN','BATMAN','BAYBURT','BİLECİK','BİNGÖL','BİTLİS','BOLU','BURDUR','BURSA','ÇANAKKALE','ÇANKIRI','ÇORUM','DENİZLİ','DİYARBAKIR','DÜZCE','EDİRNE','ELAZIĞ','ERZİNCAN','ERZURUM','ESKİŞEHİR','GAZİANTEP','GİRESUN','GÜMÜŞHANE','HAKKARİ','HATAY','IĞDIR','ISPARTA','İSTANBUL','İZMİR','KAHRAMANMARAŞ','KARABÜK','KARAMAN','KARS','KASTAMONU','KAYSERİ','KIRIKKALE','KIRKLARELİ','KIRŞEHİR','KİLİS','KOCAELİ','KONYA','KÜTAHYA','MALATYA','MANİSA','MARDİN','MERSİN','MUĞLA','MUŞ','NEVŞEHİR','NİĞDE','ORDU','OSMANİYE','RİZE','SAKARYA','SAMSUN','SİİRT','SİNOP','SİVAS','ŞANLIURFA','ŞIRNAK','TEKİRDAĞ','TOKAT','TRABZON','TUNCELİ','UŞAK','VAN','YALOVA','YOZGAT','ZONGULDAK'];
- for(const c of cities)if(t.includes(c))out.cities.push(c);
- const dns=t.match(/\b(?:YERDEN\s+ISITMA|MANTOLAMA)[^\n]{0,80}?(\d{1,2})\s*DNS\b/);
- if(dns)out.density=dns[1];
- if(/YERDEN\s+ISITMA/.test(t))out.product='YERDEN ISITMA';
- if(/MANTOLAMA/.test(t))out.product='MANTOLAMA';
- return out;
+function extractOcrFields(text){
+  const t=String(text||'').replace(/\r/g,'\n');
+  const out={phone:'',plates:[],city:'',district:'',driver:'',customer:''};
+  const phones=t.match(/(?:0?5[\s().-]*\d{3}[\s().-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}|0?5\d{9})/g)||[];
+  out.phone=phones.length?phones.map(digits).sort((a,b)=>b.length-a.length)[0]:'';
+  const plateRe=/\b\d{2}\s*[A-ZÇĞİÖŞÜ]{1,3}\s*\d{2,4}\b/gi;
+  out.plates=[...new Set((t.match(plateRe)||[]).map(x=>upperTR(x).replace(/\s+/g,' ').trim()))].slice(0,4);
+  const cities=['DİYARBAKIR','TEKİRDAĞ','İSTANBUL','ANKARA','İZMİR','BURSA','KOCAELİ','KONYA','ANTALYA','ADANA','MERSİN','KAYSERİ','GAZİANTEP','ŞANLIURFA','MALATYA','ELAZIĞ','VAN','ERZURUM','SAMSUN','TRABZON','SAKARYA','MANİSA','DENİZLİ','ESKİŞEHİR','BALIKESİR','HATAY','MUĞLA','AYDIN','MARDİN','BATMAN','SİİRT','BİTLİS','BİNGÖL','ŞIRNAK','HAKKARİ','AĞRI','IĞDIR','KARS','ARDAHAN','ARTVİN','RİZE','GİRESUN','ORDU','TOKAT','AMASYA','ÇORUM','SİNOP','KASTAMONU','KARABÜK','BARTIN','ZONGULDAK','DÜZCE','BOLU','BİLECİK','KÜTAHYA','UŞAK','AFYONKARAHİSAR','ISPARTA','BURDUR','KIRKLARELİ','EDİRNE','YALOVA','ÇANKIRI','KIRIKKALE','NEVŞEHİR','NİĞDE','AKSARAY','KARAMAN','KIRŞEHİR','YOZGAT','SİVAS','TUNCELİ','ADIYAMAN','KİLİS','MUŞ'];
+  for(const c of cities){if(t.toLocaleUpperCase('tr-TR').includes(c)){out.city=c;break}}
+  let m=t.match(/(?:ŞOFÖR|SOFOR|DRIVER)\s*[:\-]?\s*([A-Za-zÇĞİÖŞÜçğıöşü]{2,25}(?:\s+[A-Za-zÇĞİÖŞÜçğıöşü]{2,25}){1,3})/i);
+  if(m)out.driver=upperTR(m[1]).trim();
+  m=t.match(/(?:MÜŞTERİ|MUSTERI|CUSTOMER)\s*[:\-]?\s*([^\n]+)/i);
+  if(m)out.customer=upperTR(m[1]).trim();
+  return out;
 }
-function scoreOrder(o,f,text){
- let score=0,why=[];
- const oPhone=digits(o.phone||o.soforTel||'').slice(-10);
- if(oPhone&&f.phones.includes(oPhone)){score+=55;why.push('telefon')}
- const oPlate=norm([o.tractor,o.plate,o.cekici,o.dorse].filter(Boolean).join(' '));
- if(oPlate&&f.plates.some(p=>oPlate.includes(p)||p.includes(oPlate))){score+=35;why.push('plaka')}
- const oCity=norm(o.city||'');
- const oDistrict=norm(o.district||'');
- if(oCity&&f.cities.some(c=>norm(c)===oCity)){score+=8;why.push('il')}
- if(oDistrict&&norm(text).includes(oDistrict)){score+=5;why.push('ilçe')}
- const customer=norm(o.customer||'');
- if(customer&&customer.length>=5&&norm(text).includes(customer)){score+=20;why.push('müşteri')}
- const product=norm(o.product||'');
- if(f.product&&product&&product.includes(norm(f.product))){score+=8;why.push('ürün')}
- const dns=String(o.density||'');
- if(f.density&&dns&&dns===f.density){score+=7;why.push('DNS')}
- const driver=norm(o.driver||'');
- if(driver&&driver.length>=5&&norm(text).includes(driver)){score+=15;why.push('şoför')}
- return {score:Math.min(score,100),why};
+function scoreOrder(x,f){
+  let score=0, reasons=[];
+  const p=digits(x.phone), sp=digits(x.soforTel);
+  if(f.phone && (f.phone===p || f.phone===sp)){score+=55;reasons.push('telefon')}
+  if(f.plates.length){
+    const xp=[x.tractor,x.trailer].map(norm);
+    const hit=f.plates.some(pl=>xp.includes(norm(pl)));
+    if(hit){score+=30;reasons.push('plaka')}
+  }
+  if(f.city && norm(x.city)===norm(f.city)){score+=8;reasons.push('il')}
+  if(f.driver && similarity(x.driver,f.driver)>=0.5){score+=7;reasons.push('şoför')}
+  if(f.customer && similarity(x.customer,f.customer)>=0.5){score+=10;reasons.push('müşteri')}
+  return {score:Math.min(100,score),reasons};
 }
-async function runOCR(){
- if(!currentFile)return alert('Önce WhatsApp’tan bir teslim formu fotoğrafı gönderin.');
- $('ocrStatus').textContent='⏳ OCR çalışıyor… Fotoğraf okunuyor.';
- $('ocrStatus').className='status warn';$('ocrBtn').disabled=true;
+function renderShareMatches(matches,fields){
+  const box=$('shareMatches');
+  if(!matches.length){box.innerHTML='<div class="small" style="margin-top:9px">Eşleşen sipariş bulunamadı. Siparişi manuel seçerek teslim formu ekleyebilirsiniz.</div>';return}
+  box.innerHTML='<b style="display:block;margin-top:10px">🎯 En güçlü adaylar</b>'+matches.slice(0,5).map((m,i)=>{
+    const x=m.x;
+    const product=x.product==='Yerden Isıtma'?`${x.product} · ${x.density} DNS · ${x.foil||'-'}`:`${x.product} · ${x.density} DNS · ${x.thickness||'-'} cm`;
+    return `<div class="match-card"><div><span class="match-score">%${m.score}</span> ${i===0?'⭐':''} <b>${esc(x.customer||'-')}</b></div>
+    <div class="match-meta">${esc(product)} · ${esc(x.city||'-')}/${esc(x.district||'-')}<br>📞 ${esc(x.phone||'-')} · 🚛 ${esc(x.tractor||'-')} / ${esc(x.trailer||'-')} · 👤 ${esc(x.driver||'-')}<br>Kanıt: ${esc(m.reasons.join(', ')||'zayıf eşleşme')}</div>
+    <div class="match-actions"><button class="accept" onclick="saveSharedToOrder(${x.id})">📎 Bu siparişe kaydet</button><button onclick="openEdit(${x.id})">✏️ Siparişi aç</button></div></div>`;
+  }).join('');
+}
+async function saveSharedToOrder(id){
+  if(!sharedPhoto?.blob)return alert('Paylaşılan fotoğraf bulunamadı.');
+  const x=data.find(o=>o.id===id);if(!x)return alert('Sipariş bulunamadı.');
+  if(!confirm(`${x.customer||'Bu sipariş'} için teslim formu fotoğrafı kaydedilsin mi?`))return;
+  const db=await openDB();
+  const tx=db.transaction('files','readwrite');
+  tx.objectStore('files').put({id,name:sharedPhoto.name||'WhatsApp_Teslim_Formu.jpg',blob:sharedPhoto.blob});
+  tx.oncomplete=async()=>{
+    await clearSharedPhoto();sharedPhoto=null;
+    $('whatsappShareCard').classList.add('hidden');
+    alert('Teslim formu doğru siparişe kaydedildi.');
+    renderCompleted();
+  };
+  tx.onerror=()=>alert('Teslim formu kaydedilemedi.');
+}
+async function runShareOCR(){
+  if(!sharedPhoto?.blob)return;
+  $('shareProgress').classList.remove('hidden');$('shareProgressBar').style.width='5%';
+  $('shareStatus').textContent='🔎 Fotoğraf okunuyor...';
+  $('shareOcrText').classList.add('hidden');$('shareMatches').innerHTML='';
+  if(!window.Tesseract){$('shareStatus').textContent='OCR modülü yüklenemedi. İnternet bağlantısını kontrol edin.';return}
+  try{
+    const worker=await Tesseract.createWorker('tur+eng',1,{logger:m=>{
+      if(m.progress!=null)$('shareProgressBar').style.width=Math.round(Math.max(5,m.progress*100))+'%';
+      if(m.status)$('shareStatus').textContent='🔎 '+m.status;
+    }});
+    const r=await worker.recognize(sharedPhoto.blob);
+    await worker.terminate();
+    const text=r?.data?.text||'';
+    $('shareOcrText').textContent=text||'(Yazı okunamadı)';
+    $('shareOcrText').classList.remove('hidden');
+    $('shareProgressBar').style.width='100%';
+    const fields=extractOcrFields(text);
+    const matches=data.filter(x=>!x.completed).map(x=>{const s=scoreOrder(x,fields);return {x,...s}}).filter(m=>m.score>0).sort((a,b)=>b.score-a.score);
+    $('shareStatus').textContent=matches.length?`✅ OCR tamamlandı. ${matches.length} sipariş aday olarak bulundu. Telefon/plaka eşleşmesi en güçlü kanıttır.`:'⚠️ OCR tamamlandı ama aktif siparişlerde eşleşme bulunamadı.';
+    renderShareMatches(matches,fields);
+  }catch(e){
+    console.error('OCR hatası',e);$('shareStatus').textContent='❌ OCR sırasında hata oluştu: '+(e?.message||e);
+  }
+}
+async function checkSharedPhoto(){
+  try{
+    const item=await getSharedPhoto(); if(!item?.blob)return;
+    sharedPhoto=item;
+    $('whatsappShareCard').classList.remove('hidden');
+    $('shareClear').classList.remove('hidden');
+    $('sharePreview').src=URL.createObjectURL(item.blob);$('sharePreview').classList.remove('hidden');
+    $('shareStatus').textContent='📲 WhatsApp fotoğrafı alındı. Şimdi siparişlerle eşleştiriliyor...';
+    await runShareOCR();
+  }catch(e){console.warn('Paylaşılan fotoğraf okunamadı',e)}
+}
+$('shareClear').onclick=async()=>{
+  await clearSharedPhoto();sharedPhoto=null;
+  $('whatsappShareCard').classList.add('hidden');$('sharePreview').src='';$('shareMatches').innerHTML='';
+};
+
+function exportCompleted(){
+ const from=$('exportFrom').value,to=$('exportTo').value;
+ const arr=data.filter(x=>x.completed&&(!from||x.date>=from)&&(!to||x.date<=to));
+ if(!arr.length)return alert('Dışa aktarılacak tamamlanan sipariş yok.');
+ if(typeof XLSX==='undefined')return alert('Excel modülü yüklenemedi. İnternet bağlantısını kontrol edip tekrar deneyin.');
+ const h=['Tarih','Müşteri','Telefon','Ürün','DNS','Folyo','Kalınlık','İl','İlçe','Miktar m²','Çekici','Dorse','Şoför','Şoför Tel','Nakliye TL','Ödeme','KDV','Not'];
+ const rows=[h,...arr.map(x=>[x.date,x.customer,x.phone,x.product,x.density,x.foil,x.thickness,x.city,x.district,x.sqm,x.tractor,x.trailer,x.driver,x.soforTel,x.freight,x.freightPayment,x.vat,x.note])];
+ const ws=XLSX.utils.aoa_to_sheet(rows);
+ ws['!cols']=h.map((_,i)=>({wch:[12,24,15,18,8,10,10,16,18,12,14,14,22,16,14,18,10,35][i]||15}));
+ const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Tamamlanan Siparişler');
+ XLSX.writeFile(wb,'Cenkar_Tamamlanan_Siparisler.xlsx');
+}
+
+async function cloudUpsert(x){
+ if(!cloudUser||!sb)return {ok:false,message:'Bulut hesabına giriş yapılmamış.'};
+ const {error}=await sb.from('cenkar_orders').upsert({id:x.id,user_id:cloudUser.id,data:x,updated_at:new Date(x.updatedAt||Date.now()).toISOString()});
+ if(error){console.warn('Cloud upsert error',error);return {ok:false,message:error.message||JSON.stringify(error)}}
+ return {ok:true};
+}
+async function cloudDelete(id){
+ if(!cloudUser||!sb)return {ok:false,message:'Bulut hesabına giriş yapılmamış.'};
+ const {error}=await sb.from('cenkar_orders').delete().eq('id',id).eq('user_id',cloudUser.id);
+ if(error){console.warn('Cloud delete error',error);return {ok:false,message:error.message||JSON.stringify(error)}}
+ return {ok:true};
+}
+async function cloudRefresh(){
+ if(!cloudUser||!sb)return {ok:false,message:'Bulut hesabına giriş yapılmamış.'};
+ if(cloudBusy)return {ok:false,message:'Senkronizasyon zaten devam ediyor.'};
+ cloudBusy=true;
  try{
-  const result=await Tesseract.recognize(currentFile,'tur+eng',{logger:m=>{if(m.status)$('ocrStatus').textContent='⏳ '+m.status+' '+(m.progress?Math.round(m.progress*100)+'%':'')}});
-  const text=result.data.text||'';
-  $('ocrText').textContent=text;$('ocrText').classList.remove('hidden');
-  const f=extractFields(text);
-  currentMatches=orders.map(o=>({o,...scoreOrder(o,f,text)})).sort((a,b)=>b.score-a.score);
-  renderMatches(f);
-  $('ocrStatus').textContent='✅ OCR tamamlandı.';$('ocrStatus').className='status ok';
- }catch(e){$('ocrStatus').textContent='❌ OCR hatası: '+e;$('ocrStatus').className='status warn'}
- finally{$('ocrBtn').disabled=false}
+  const {data:rows,error:readError}=await sb.from('cenkar_orders').select('id,data,updated_at').eq('user_id',cloudUser.id).order('updated_at',{ascending:false});
+  if(readError)throw new Error('Buluttan okuma hatası: '+(readError.message||JSON.stringify(readError))+(readError.hint?' | İpucu: '+readError.hint:''));
+  const before=rows||[];
+  const remoteMap=new Map(before.map(r=>{const d={...(r.data||{})};if(!d.updatedAt&&r.updated_at)d.updatedAt=Date.parse(r.updated_at)||0;return [String(r.id),d]}));
+  let uploaded=0,incoming=0,deleted=0;
+  for(const id of deletedIds){
+   const {error}=await sb.from('cenkar_orders').delete().eq('id',id).eq('user_id',cloudUser.id);
+   if(error)throw new Error('Buluttan silme hatası: '+(error.message||JSON.stringify(error))+(error.hint?' | İpucu: '+error.hint:''));
+   if(remoteMap.delete(String(id)))deleted++;
+  }
+  const localMap=new Map(data.map(x=>[String(x.id),x]));
+  for(const [id,remote] of [...remoteMap]){
+   if(deletedIds.includes(id))continue;
+   const local=localMap.get(id);
+   if(!local){localMap.set(id,remote);incoming++;continue;}
+   if(Number(local.updatedAt||0)>Number(remote.updatedAt||0)){
+    const u=await cloudUpsert(local);if(!u.ok)throw new Error('Buluta kayıt gönderilemedi: '+u.message);uploaded++;remoteMap.set(id,local);
+   }else if(Number(remote.updatedAt||0)>Number(local.updatedAt||0)){localMap.set(id,remote);}
+  }
+  for(const local of localMap.values()){
+   const id=String(local.id);if(deletedIds.includes(id))continue;
+   const remote=remoteMap.get(id);
+   if(!remote||Number(local.updatedAt||0)>Number(remote.updatedAt||0)){
+    const u=await cloudUpsert(local);if(!u.ok)throw new Error('Buluta kayıt gönderilemedi: '+u.message);uploaded++;remoteMap.set(id,local);
+   }
+  }
+  data=[...localMap.values()].filter(x=>!deletedIds.includes(String(x.id))).sort((a,b)=>Number(b.updatedAt||b.id)-Number(a.updatedAt||a.id));
+  if(!saveLocal())throw new Error('Telefon verileri yerel olarak kaydedilemedi.');
+  populateCities();renderActive();renderCompleted();cloudLastSync=Date.now();
+  return {ok:true,before:before.length,uploaded,incoming,deleted,total:data.length};
+ }catch(e){console.warn('Cloud sync error',e);return {ok:false,message:e&&e.message?e.message:String(e)}}finally{cloudBusy=false}
 }
-function renderMatches(f){
- if(!currentMatches.length){$('matches').innerHTML='<p>Uygun sipariş bulunamadı.</p>';return}
- $('matches').innerHTML=currentMatches.map((m,i)=>`<div class="candidate ${i===0?'best':''}">
- <b>${esc(m.o.customer)} — <span class="score">%${m.score}</span></b>
- <div class="small">${esc(m.o.phone)} · ${esc(m.o.plate)} · ${esc(m.o.city)}/${esc(m.o.district)}</div>
- <div class="small">Eşleşen: ${m.why.join(', ')||'zayıf eşleşme'}</div>
- <button onclick="selectOrder(${m.o.id})">${i===0?'⭐ En uygun bunu seç':'Bu siparişi seç'}</button>
- </div>`).join('');
+
+function startCloudAutoSync(){ stopCloudAutoSync(); }
+
+function stopCloudAutoSync(){
+ if(cloudSyncTimer)clearInterval(cloudSyncTimer);
+ cloudSyncTimer=null;
 }
-window.selectOrder=function(id){selectedOrderId=id;$('saveBtn').classList.remove('hidden');$('matches').querySelectorAll('.candidate').forEach(x=>x.classList.remove('best'));event?.currentTarget?.closest('.candidate')?.classList.add('best')}
-$('addOrder').onclick=()=>{const customer=$('demoCustomer').value.trim().toUpperCase();if(!customer)return alert('Müşteri adı girin.');orders.push({id:Date.now(),customer,phone:$('demoPhone').value.trim(),plate:$('demoPlate').value.trim().toUpperCase(),city:$('demoCity').value.trim().toUpperCase(),district:''});localStorage.setItem('cenkar_ocr_test_orders',JSON.stringify(orders));renderOrders();$('demoCustomer').value='';$('demoPhone').value='';$('demoPlate').value='';$('demoCity').value=''}
-$('ocrBtn').onclick=runOCR;
-$('saveBtn').onclick=async()=>{if(!selectedOrderId||!currentFile)return alert('Önce bir sipariş seçin.');const db=await openDB();const tx=db.transaction('files','readwrite');tx.objectStore('files').put({id:'order-'+selectedOrderId,name:'teslim-formu.jpg',blob:currentFile,savedAt:Date.now()});tx.oncomplete=()=>{$('saveBtn').textContent='✅ Teslim Formu Kaydedildi';$('viewBtn').classList.remove('hidden');}};
-$('viewBtn').onclick=async()=>{const db=await openDB();const r=db.transaction('files').objectStore('files').get('order-'+selectedOrderId);r.onsuccess=()=>{if(r.result)window.open(URL.createObjectURL(r.result.blob),'_blank')}};
-if(usingRealOrders){
- $('orderSource').textContent='✅ Bu telefondaki gerçek Cenkar siparişleri yüklendi: '+orders.length+' kayıt. Test uygulaması bunları sadece okur; ana uygulamadaki kayıtları değiştirmez.';
- $('orderSource').className='small ok';
-}else{
- $('orderSource').textContent='⚠️ Gerçek Cenkar siparişleri bulunamadı; demo siparişlerle test ediliyor.';
+function updateCloudUI(){
+ const logged=!!cloudUser;$('cloudLoggedOut').classList.toggle('hidden',logged);$('cloudLoggedIn').classList.toggle('hidden',!logged);
+ $('cloudStatus').textContent=logged?'☁️ Bulut: BAĞLI':'☁️ Bulut: BAĞLI DEĞİL';
+ if(logged)$('cloudUserText').textContent='Bağlı hesap: '+cloudUser.email;
 }
-renderOrders();getSharedFile();
+async function cloudLogin(){
+ initSupabaseClient(); if(!sb)return alert('Bulut bağlantısı şu anda kullanılamıyor. Siparişler telefonda çalışmaya devam eder.');
+ const email=$('cloudEmail').value.trim(),password=$('cloudPassword').value;if(!email||!password)return alert('E-posta ve şifre girin.');
+ const {data:r,error}=await sb.auth.signInWithPassword({email,password});if(error)return alert('Giriş yapılamadı: '+error.message);
+ cloudUser=r.user;updateCloudUI();stopCloudAutoSync();alert('Buluta bağlandı. Senkronizasyon yalnızca siz istediğinizde yapılır.');
+}
+async function cloudSignup(){
+ initSupabaseClient(); if(!sb)return alert('Bulut bağlantısı şu anda kullanılamıyor. Siparişler telefonda çalışmaya devam eder.');
+ const email=$('cloudEmail').value.trim(),password=$('cloudPassword').value;if(!email||!password)return alert('E-posta ve şifre girin.');
+ const {data:r,error}=await sb.auth.signUp({email,password});if(error)return alert('Hesap oluşturulamadı: '+error.message);
+ if(r.user){cloudUser=r.user;updateCloudUI();stopCloudAutoSync();alert('Hesap oluşturuldu. Senkronizasyon yalnızca siz istediğinizde yapılır.')}else alert('Hesap oluşturuldu. E-posta doğrulaması gerekiyorsa e-postanızı kontrol edin.');
+}
+async function initCloud(){
+  initSupabaseClient();
+  if(!sb){ updateCloudUI(); return; }
+  const {data:r}=await sb.auth.getSession();
+  if(r.session){cloudUser=r.session.user;updateCloudUI();stopCloudAutoSync()}else updateCloudUI();
+  sb.auth.onAuthStateChange(async(_e,s)=>{
+    cloudUser=s?.user||null;updateCloudUI();
+    if(cloudUser){stopCloudAutoSync()}else stopCloudAutoSync();
+  });
+}
+// Bulut otomatik senkronizasyonu KAPALI. Yalnızca 'Şimdi Senkronize Et' ile çalışır.
+
+
+$('product').onchange=productChanged;$('quantityType').onchange=()=>updateQuantityUI(false);$('e_quantityType').onchange=()=>updateQuantityUI(true);$('saveBtn').onclick=function(e){e.preventDefault();save();};$('parseOrderBtn').onclick=()=>applyOrder();$('parseShipmentBtn').onclick=()=>applyShipment('new');
+$('search').oninput=renderActive;$('fcity').onchange=renderActive;$('fproduct').onchange=renderActive;$('doneSearch').oninput=renderCompleted;$('doneCity').onchange=renderCompleted;$('doneProduct').onchange=renderCompleted;$('doneFrom').onchange=renderCompleted;$('doneTo').onchange=renderCompleted;$('doneClearDates').onclick=()=>{$('doneFrom').value='';$('doneTo').value='';renderCompleted()};
+$('exportBtn').onclick=exportCompleted;$('closeEdit').onclick=closeEdit;$('cancelEdit').onclick=closeEdit;$('saveEdit').onclick=saveEdit;$('editParseShipment').onclick=()=>applyShipment('edit');
+$('e_product').onchange=editProductChanged;
+$('completedFilterToggle').onclick=()=>{$('completedFilterPanel').classList.toggle('hidden');};
+$('cloudBtn').onclick=()=>$('cloudModal').classList.add('show');
+$('cloudClose').onclick=()=>$('cloudModal').classList.remove('show');
+$('cloudLogin').onclick=cloudLogin;
+$('cloudSignup').onclick=cloudSignup;
+$('cloudSync').onclick=async()=>{const b=$('cloudSync');if(cloudBusy)return;b.disabled=true;b.textContent='⏳ Senkronize ediliyor...';const r=await cloudRefresh();b.disabled=false;b.textContent='☁️ Şimdi Senkronize Et';if(r.ok){alert('SENKRONİZASYON TAMAMLANDI\n\nBulutta önce: '+r.before+' kayıt\nBuluta gönderilen/güncellenen: '+r.uploaded+'\nBuluttan telefona gelen: '+r.incoming+'\nBuluttan silinen: '+r.deleted+' kayıt\nTelefonda toplam: '+r.total);}else{alert('SENKRONİZASYON BAŞARISIZ\n\n'+(r.message||'Bilinmeyen hata'));}};
+$('cloudLogout').onclick=async()=>{stopCloudAutoSync();if(sb)await sb.auth.signOut();cloudUser=null;updateCloudUI();$('cloudModal').classList.remove('show')};
+
+setDensity($('density'),'Yerden Isıtma','22');setThickness($('thickness'));$('epsType').value='Beyaz EPS';$('teamSystem').value='Evet';productChanged();
+setDensity($('e_density'),'Yerden Isıtma','22');setThickness($('e_thickness'));$('e_epsType').value='Beyaz EPS';$('e_teamSystem').value='Hayır';$('e_quantityType').value='Paket';editProductChanged();
+// Bulut başlangıçta otomatik çalışmaz. Sadece manuel senkronizasyon için kullanılabilir.
+// WhatsApp paylaşım hedefi aktif. Eski kayıtlı SW varsa artık kaldırılmaz.
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').then(()=>console.log('WhatsApp Share Target aktif.')).catch(e=>console.warn('Share Target SW kaydı başarısız:',e));
+}
+checkSharedPhoto();
 </script>
 </body>
 </html>
