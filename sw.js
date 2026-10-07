@@ -2,7 +2,7 @@ self.addEventListener('install',e=>e.waitUntil(self.skipWaiting()));
 self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',e=>{
  const u=new URL(e.request.url);
- if(e.request.method==='POST' && u.pathname.endsWith('/share-target')){
+ if(e.request.method==='POST' && u.origin===self.location.origin){
   e.respondWith((async()=>{
    try{
     const fd=await e.request.formData(),file=fd.get('file');
