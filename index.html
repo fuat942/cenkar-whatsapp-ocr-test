@@ -47,7 +47,7 @@ if ("serviceWorker" in navigator) {
 
 <div class="card">
 <b>2. Sipariş Havuzu</b>
-<p class="small">Bu test uygulamasında örnek siparişler bulunur. Gerçek Cenkar siparişleriyle eşleştirme entegrasyondan sonra ana uygulamaya taşınacaktır.</p>
+<p class="small" id="orderSource">Gerçek Cenkar siparişleri bu telefonda varsa otomatik okunur ve eşleştirmede kullanılır. Bu test ana uygulamadaki siparişleri değiştirmez.</p>
 <div id="orders"></div>
 <label>Yeni test siparişi ekle</label>
 <input id="demoCustomer" placeholder="Müşteri adı">
@@ -80,18 +80,30 @@ if ("serviceWorker" in navigator) {
 <script>
 const DB='cenkar_ocr_test_db';
 let currentFile=null,currentMatches=[],selectedOrderId=null;
-let orders=JSON.parse(localStorage.getItem('cenkar_ocr_test_orders')||'null')||[
+function loadRealOrders(){
+ try{
+  const raw=localStorage.getItem('cenkar_orders');
+  const parsed=raw?JSON.parse(raw):[];
+  if(Array.isArray(parsed)&&parsed.length){
+   return parsed.filter(o=>o&&!o.id).length?parsed.filter(o=>o&&o.id):parsed;
+  }
+ }catch(e){console.warn('Gerçek siparişler okunamadı:',e)}
+ return [];
+}
+let realOrders=loadRealOrders();
+let usingRealOrders=realOrders.length>0;
+let orders=usingRealOrders?realOrders:(JSON.parse(localStorage.getItem('cenkar_ocr_test_orders')||'null')||[
  {id:1,customer:'DEMO MÜŞTERİ 1',phone:'05321234567',plate:'21 ABC 123',city:'DİYARBAKIR',district:'KAYAPINAR'},
  {id:2,customer:'DEMO MÜŞTERİ 2',phone:'05429876543',plate:'34 XYZ 456',city:'İSTANBUL',district:'BAĞCILAR'},
  {id:3,customer:'DEMO MÜŞTERİ 3',phone:'05551112233',plate:'06 CEN 789',city:'ANKARA',district:'SİNCAN'}
-];
+]);
 
 const $=id=>document.getElementById(id);
 function esc(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
 function norm(s){return String(s||'').toUpperCase().replace(/İ/g,'I').replace(/Ğ/g,'G').replace(/Ü/g,'U').replace(/Ş/g,'S').replace(/Ö/g,'O').replace(/Ç/g,'C').replace(/[^A-Z0-9]/g,'')}
 function digits(s){return String(s||'').replace(/\D/g,'')}
 function renderOrders(){
- $('orders').innerHTML=orders.map(o=>`<div class="candidate"><b>${esc(o.customer)}</b><div class="small">Tel: ${esc(o.phone)} · Plaka: ${esc(o.plate)} · ${esc(o.city)}/${esc(o.district)}</div></div>`).join('');
+ $('orders').innerHTML=orders.map(o=>`<div class="candidate"><b>${esc(o.customer)}</b><div class="small">Tel: ${esc(o.phone||'')} · Plaka: ${esc(o.tractor||o.plate||'')} · ${esc(o.city||'')}/${esc(o.district||'')}</div></div>`).join('');
 }
 function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore('files',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
 async function getSharedFile(){
@@ -104,20 +116,37 @@ function similarity(a,b){
 }
 function extractFields(text){
  const t=text.toUpperCase();
- const out={};
- let m=t.match(/0?5[\d\s().-]{9,}/);if(m)out.phone=digits(m[0]).slice(-11);
- m=t.match(/\b(\d{2}\s*[A-ZÇĞİÖŞÜ]{1,3}\s*\d{2,4})\b/);if(m)out.plate=m[1];
- const cities=['DİYARBAKIR','İSTANBUL','ANKARA','İZMİR','BURSA','KOCAELİ','KONYA','ANTALYA','ADANA','MERSİN','GAZİANTEP','ŞANLIURFA','MALATYA'];
- for(const c of cities)if(t.includes(c)){out.city=c;break}
+ const out={phones:[],plates:[],cities:[]};
+ let ms=t.match(/(?:0?5[\d\s().-]{9,})/g)||[];
+ out.phones=[...new Set(ms.map(x=>digits(x).slice(-10)).filter(x=>x.length===10))];
+ const pm=t.match(/\b\d{2}\s*[A-ZÇĞİÖŞÜ]{1,3}\s*\d{2,4}\b/g)||[];
+ out.plates=[...new Set(pm.map(x=>norm(x)))];
+ const cities=['ADANA','ADIYAMAN','AFYONKARAHİSAR','AĞRI','AKSARAY','AMASYA','ANKARA','ANTALYA','ARDAHAN','ARTVİN','AYDIN','BALIKESİR','BARTIN','BATMAN','BAYBURT','BİLECİK','BİNGÖL','BİTLİS','BOLU','BURDUR','BURSA','ÇANAKKALE','ÇANKIRI','ÇORUM','DENİZLİ','DİYARBAKIR','DÜZCE','EDİRNE','ELAZIĞ','ERZİNCAN','ERZURUM','ESKİŞEHİR','GAZİANTEP','GİRESUN','GÜMÜŞHANE','HAKKARİ','HATAY','IĞDIR','ISPARTA','İSTANBUL','İZMİR','KAHRAMANMARAŞ','KARABÜK','KARAMAN','KARS','KASTAMONU','KAYSERİ','KIRIKKALE','KIRKLARELİ','KIRŞEHİR','KİLİS','KOCAELİ','KONYA','KÜTAHYA','MALATYA','MANİSA','MARDİN','MERSİN','MUĞLA','MUŞ','NEVŞEHİR','NİĞDE','ORDU','OSMANİYE','RİZE','SAKARYA','SAMSUN','SİİRT','SİNOP','SİVAS','ŞANLIURFA','ŞIRNAK','TEKİRDAĞ','TOKAT','TRABZON','TUNCELİ','UŞAK','VAN','YALOVA','YOZGAT','ZONGULDAK'];
+ for(const c of cities)if(t.includes(c))out.cities.push(c);
+ const dns=t.match(/\b(?:YERDEN\s+ISITMA|MANTOLAMA)[^\n]{0,80}?(\d{1,2})\s*DNS\b/);
+ if(dns)out.density=dns[1];
+ if(/YERDEN\s+ISITMA/.test(t))out.product='YERDEN ISITMA';
+ if(/MANTOLAMA/.test(t))out.product='MANTOLAMA';
  return out;
 }
 function scoreOrder(o,f,text){
  let score=0,why=[];
- if(f.phone && digits(o.phone).slice(-10)===digits(f.phone).slice(-10)){score+=60;why.push('telefon')}
- if(f.plate && norm(o.plate)===norm(f.plate)){score+=30;why.push('plaka')}
- if(f.city && norm(text).includes(norm(o.city))){score+=7;why.push('il')}
- if(f.city && norm(text).includes(norm(o.district))){score+=3;why.push('ilçe')}
- if(norm(text).includes(norm(o.customer))){score+=15;why.push('müşteri')}
+ const oPhone=digits(o.phone||o.soforTel||'').slice(-10);
+ if(oPhone&&f.phones.includes(oPhone)){score+=55;why.push('telefon')}
+ const oPlate=norm([o.tractor,o.plate,o.cekici,o.dorse].filter(Boolean).join(' '));
+ if(oPlate&&f.plates.some(p=>oPlate.includes(p)||p.includes(oPlate))){score+=35;why.push('plaka')}
+ const oCity=norm(o.city||'');
+ const oDistrict=norm(o.district||'');
+ if(oCity&&f.cities.some(c=>norm(c)===oCity)){score+=8;why.push('il')}
+ if(oDistrict&&norm(text).includes(oDistrict)){score+=5;why.push('ilçe')}
+ const customer=norm(o.customer||'');
+ if(customer&&customer.length>=5&&norm(text).includes(customer)){score+=20;why.push('müşteri')}
+ const product=norm(o.product||'');
+ if(f.product&&product&&product.includes(norm(f.product))){score+=8;why.push('ürün')}
+ const dns=String(o.density||'');
+ if(f.density&&dns&&dns===f.density){score+=7;why.push('DNS')}
+ const driver=norm(o.driver||'');
+ if(driver&&driver.length>=5&&norm(text).includes(driver)){score+=15;why.push('şoför')}
  return {score:Math.min(score,100),why};
 }
 async function runOCR(){
@@ -149,6 +178,12 @@ $('addOrder').onclick=()=>{const customer=$('demoCustomer').value.trim().toUpper
 $('ocrBtn').onclick=runOCR;
 $('saveBtn').onclick=async()=>{if(!selectedOrderId||!currentFile)return alert('Önce bir sipariş seçin.');const db=await openDB();const tx=db.transaction('files','readwrite');tx.objectStore('files').put({id:'order-'+selectedOrderId,name:'teslim-formu.jpg',blob:currentFile,savedAt:Date.now()});tx.oncomplete=()=>{$('saveBtn').textContent='✅ Teslim Formu Kaydedildi';$('viewBtn').classList.remove('hidden');}};
 $('viewBtn').onclick=async()=>{const db=await openDB();const r=db.transaction('files').objectStore('files').get('order-'+selectedOrderId);r.onsuccess=()=>{if(r.result)window.open(URL.createObjectURL(r.result.blob),'_blank')}};
+if(usingRealOrders){
+ $('orderSource').textContent='✅ Bu telefondaki gerçek Cenkar siparişleri yüklendi: '+orders.length+' kayıt. Test uygulaması bunları sadece okur; ana uygulamadaki kayıtları değiştirmez.';
+ $('orderSource').className='small ok';
+}else{
+ $('orderSource').textContent='⚠️ Gerçek Cenkar siparişleri bulunamadı; demo siparişlerle test ediliyor.';
+}
 renderOrders();getSharedFile();
 </script>
 </body>
